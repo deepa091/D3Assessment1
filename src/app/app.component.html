@@ -4,7 +4,7 @@
   <div *ngIf="yearlyData.length > 0" class="filterClass">
     <label>Year: </label>
     <select #teams (change)="selected(teams.value)">
-      <option default>Pick a Year</option>
+      <option default>All</option>
       <option *ngFor="let item of yearlyData">
         {{ item }}
       </option>

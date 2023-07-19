@@ -40,7 +40,7 @@ export class ScatterPlotComponent implements OnChanges {
       top: 20,
       right: 200,
       bottom: 30,
-      left: 30,
+      left: 50,
     };
 
     //Height & Width
@@ -78,7 +78,6 @@ export class ScatterPlotComponent implements OnChanges {
   renderScatterplot(): void {
     //---------------Variables--------------------
     const data = this.chartData;
-    console.log(data);
 
     //sort the data by date
     data.sort((a: any, b: any) => {
@@ -124,11 +123,33 @@ export class ScatterPlotComponent implements OnChanges {
 
     y.domain([minVal1, maxVal1]);
 
+    //Append Axes
     this.svg
       .append('g')
       .attr('transform', 'translate(0,' + this.height + ')')
       .call(d3.axisBottom(x));
     this.svg.append('g').call(d3.axisLeft(y));
+
+    //Axes Titles
+    this.svg
+      .append('text')
+      .attr('x', this.width / 2)
+      .attr('y', this.height + 25)
+      .style('text-anchor', 'middle')
+      .style('font-size', '12px')
+      .style('font-weight', 'bold')
+      .text('Population Density');
+
+    this.svg
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -this.margin.left)
+      .attr('x', 0 - this.height / 2)
+      .attr('dy', '1em')
+      .style('text-anchor', 'middle')
+      .style('font-size', '12px')
+      .style('font-weight', 'bold')
+      .text('Population Growth Rate');
 
     // Add dots
     this.svg
@@ -145,7 +166,17 @@ export class ScatterPlotComponent implements OnChanges {
       })
       //Size of the scatters based on population
       .attr('r', (d: any) => {
-        return d['Population_000s'] / 200;
+        //Size Bucket
+        let size = 0;
+        if (d['Population_000s'] >= 10000) size = 12;
+        else if (d['Population_000s'] < 10000 && d['Population_000s'] >= 5000)
+          size = 10;
+        else if (d['Population_000s'] < 5000 && d['Population_000s'] >= 1000)
+          size = 8;
+        else if (d['Population_000s'] < 1000 && d['Population_000s'] >= 100)
+          size = 5;
+        else size = 2;
+        return size;
       })
       //Color of Scatters based on Region
       .style('fill', (d: any, i: any) => {
@@ -159,10 +190,6 @@ export class ScatterPlotComponent implements OnChanges {
       })
       //Mouse Move
       .on('mousemove', (d: any, i: any) => {
-        console.log(d);
-        console.log(i);
-        console.log(this);
-
         Tooltip.html(
           'Year: ' +
             i.Year +
@@ -185,7 +212,7 @@ export class ScatterPlotComponent implements OnChanges {
         Tooltip.style('opacity', 0);
       });
 
-    //-----------Legend-----------------
+    //-----------Legend-Region-----------------
     const legendData = [...new Set(data.map((item: any) => item.Region))];
 
     //Shape
